@@ -71,11 +71,11 @@ class CommitFi(ARC4Contract):
         # Validation: deadline must be in the future
         assert deadline_param > Global.latest_timestamp, "Deadline must be in the future"
         
-        # TODO: Initialize global state values - syntax needs to be resolved
-        # self.creator = Txn.sender
-        # self.stake_amount = stake_amount_param
-        # self.deadline = deadline_param
-        # self.max_participants = max_participants_param
-        # self.current_participants = UInt64(0)
-        # self.total_pooled_stake = UInt64(0)
-        # self.challenge_status = UInt64(0)
+        # Initialize global state values using direct assignment
+        self.creator = Txn.sender
+        self.stake_amount = stake_amount_param
+        self.deadline = deadline_param
+        self.max_participants = max_participants_param
+        self.current_participants = UInt64(0)
+        self.total_pooled_stake = UInt64(0)
+        self.challenge_status = UInt64(0)

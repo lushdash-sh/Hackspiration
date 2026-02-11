@@ -1,0 +1,82 @@
+#pragma version 10
+#pragma typetrack false
+
+// algopy.arc4.ARC4Contract.approval_program() -> uint64:
+main:
+    // smart_contracts/commit_fi/contract.py:5
+    // class CommitFi(ARC4Contract):
+    txn NumAppArgs
+    bz main_bare_routing@6
+    pushbytes 0xfe19a967 // method "create_challenge(uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_create_challenge_route@3
+
+main_after_if_else@10:
+    // smart_contracts/commit_fi/contract.py:5
+    // class CommitFi(ARC4Contract):
+    pushint 0 // 0
+    return
+
+main_create_challenge_route@3:
+    // smart_contracts/commit_fi/contract.py:53
+    // @abimethod
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    // smart_contracts/commit_fi/contract.py:5
+    // class CommitFi(ARC4Contract):
+    txna ApplicationArgs 1
+    btoi
+    txna ApplicationArgs 2
+    btoi
+    txna ApplicationArgs 3
+    btoi
+    // smart_contracts/commit_fi/contract.py:53
+    // @abimethod
+    callsub create_challenge
+    pushint 1 // 1
+    return
+
+main_bare_routing@6:
+    // smart_contracts/commit_fi/contract.py:5
+    // class CommitFi(ARC4Contract):
+    txn OnCompletion
+    bnz main_after_if_else@10
+    txn ApplicationID
+    !
+    assert // can only call when creating
+    pushint 1 // 1
+    return
+
+
+// smart_contracts.commit_fi.contract.CommitFi.create_challenge(stake_amount_param: uint64, deadline_param: uint64, max_participants_param: uint64) -> void:
+create_challenge:
+    // smart_contracts/commit_fi/contract.py:53-59
+    // @abimethod
+    // def create_challenge(
+    //     self,
+    //     stake_amount_param: UInt64,
+    //     deadline_param: UInt64,
+    //     max_participants_param: UInt64
+    // ) -> None:
+    proto 3 0
+    // smart_contracts/commit_fi/contract.py:65-66
+    // # Validation: stake amount must be greater than 0
+    // assert stake_amount_param > UInt64(0), "Stake amount must be > 0"
+    frame_dig -3
+    assert // Stake amount must be > 0
+    // smart_contracts/commit_fi/contract.py:68-69
+    // # Validation: max participants must be greater than 0
+    // assert max_participants_param > UInt64(0), "Max participants must be > 0"
+    frame_dig -1
+    assert // Max participants must be > 0
+    // smart_contracts/commit_fi/contract.py:71-72
+    // # Validation: deadline must be in the future
+    // assert deadline_param > Global.latest_timestamp, "Deadline must be in the future"
+    frame_dig -2
+    global LatestTimestamp
+    >
+    assert // Deadline must be in the future
+    retsub

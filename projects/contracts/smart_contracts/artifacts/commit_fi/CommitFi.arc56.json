@@ -1,0 +1,135 @@
+{
+    "name": "CommitFi",
+    "structs": {},
+    "methods": [
+        {
+            "name": "create_challenge",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "stake_amount_param"
+                },
+                {
+                    "type": "uint64",
+                    "name": "deadline_param"
+                },
+                {
+                    "type": "uint64",
+                    "name": "max_participants_param"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Initialize a new commitment challenge\nIssue #3: Create challenge logic implementation",
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "\n    CommitFi Smart Contract - Challenge commitment platform\n    Issue #1: Global and Local State Schema Implementation\n    Issue #3: Create challenge logic implementation\n    ",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        73
+                    ],
+                    "errorMessage": "Deadline must be in the future"
+                },
+                {
+                    "pc": [
+                        67
+                    ],
+                    "errorMessage": "Max participants must be > 0"
+                },
+                {
+                    "pc": [
+                        25
+                    ],
+                    "errorMessage": "OnCompletion is not NoOp"
+                },
+                {
+                    "pc": [
+                        64
+                    ],
+                    "errorMessage": "Stake amount must be > 0"
+                },
+                {
+                    "pc": [
+                        55
+                    ],
+                    "errorMessage": "can only call when creating"
+                },
+                {
+                    "pc": [
+                        28
+                    ],
+                    "errorMessage": "can only call when not creating"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuYXBwcm92YWxfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6NQogICAgLy8gY2xhc3MgQ29tbWl0RmkoQVJDNENvbnRyYWN0KToKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX2JhcmVfcm91dGluZ0A2CiAgICBwdXNoYnl0ZXMgMHhmZTE5YTk2NyAvLyBtZXRob2QgImNyZWF0ZV9jaGFsbGVuZ2UodWludDY0LHVpbnQ2NCx1aW50NjQpdm9pZCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fY3JlYXRlX2NoYWxsZW5nZV9yb3V0ZUAzCgptYWluX2FmdGVyX2lmX2Vsc2VAMTA6CiAgICAvLyBzbWFydF9jb250cmFjdHMvY29tbWl0X2ZpL2NvbnRyYWN0LnB5OjUKICAgIC8vIGNsYXNzIENvbW1pdEZpKEFSQzRDb250cmFjdCk6CiAgICBwdXNoaW50IDAgLy8gMAogICAgcmV0dXJuCgptYWluX2NyZWF0ZV9jaGFsbGVuZ2Vfcm91dGVAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6NTMKICAgIC8vIEBhYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgbm90IE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQgLy8gY2FuIG9ubHkgY2FsbCB3aGVuIG5vdCBjcmVhdGluZwogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBDb21taXRGaShBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgYnRvaQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo1MwogICAgLy8gQGFiaW1ldGhvZAogICAgY2FsbHN1YiBjcmVhdGVfY2hhbGxlbmdlCiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A2OgogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo1CiAgICAvLyBjbGFzcyBDb21taXRGaShBUkM0Q29udHJhY3QpOgogICAgdHhuIE9uQ29tcGxldGlvbgogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAxMAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgIGFzc2VydCAvLyBjYW4gb25seSBjYWxsIHdoZW4gY3JlYXRpbmcKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuY29tbWl0X2ZpLmNvbnRyYWN0LkNvbW1pdEZpLmNyZWF0ZV9jaGFsbGVuZ2Uoc3Rha2VfYW1vdW50X3BhcmFtOiB1aW50NjQsIGRlYWRsaW5lX3BhcmFtOiB1aW50NjQsIG1heF9wYXJ0aWNpcGFudHNfcGFyYW06IHVpbnQ2NCkgLT4gdm9pZDoKY3JlYXRlX2NoYWxsZW5nZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6NTMtNTkKICAgIC8vIEBhYmltZXRob2QKICAgIC8vIGRlZiBjcmVhdGVfY2hhbGxlbmdlKAogICAgLy8gICAgIHNlbGYsCiAgICAvLyAgICAgc3Rha2VfYW1vdW50X3BhcmFtOiBVSW50NjQsCiAgICAvLyAgICAgZGVhZGxpbmVfcGFyYW06IFVJbnQ2NCwKICAgIC8vICAgICBtYXhfcGFydGljaXBhbnRzX3BhcmFtOiBVSW50NjQKICAgIC8vICkgLT4gTm9uZToKICAgIHByb3RvIDMgMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo2NS02NgogICAgLy8gIyBWYWxpZGF0aW9uOiBzdGFrZSBhbW91bnQgbXVzdCBiZSBncmVhdGVyIHRoYW4gMAogICAgLy8gYXNzZXJ0IHN0YWtlX2Ftb3VudF9wYXJhbSA+IFVJbnQ2NCgwKSwgIlN0YWtlIGFtb3VudCBtdXN0IGJlID4gMCIKICAgIGZyYW1lX2RpZyAtMwogICAgYXNzZXJ0IC8vIFN0YWtlIGFtb3VudCBtdXN0IGJlID4gMAogICAgLy8gc21hcnRfY29udHJhY3RzL2NvbW1pdF9maS9jb250cmFjdC5weTo2OC02OQogICAgLy8gIyBWYWxpZGF0aW9uOiBtYXggcGFydGljaXBhbnRzIG11c3QgYmUgZ3JlYXRlciB0aGFuIDAKICAgIC8vIGFzc2VydCBtYXhfcGFydGljaXBhbnRzX3BhcmFtID4gVUludDY0KDApLCAiTWF4IHBhcnRpY2lwYW50cyBtdXN0IGJlID4gMCIKICAgIGZyYW1lX2RpZyAtMQogICAgYXNzZXJ0IC8vIE1heCBwYXJ0aWNpcGFudHMgbXVzdCBiZSA+IDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9jb21taXRfZmkvY29udHJhY3QucHk6NzEtNzIKICAgIC8vICMgVmFsaWRhdGlvbjogZGVhZGxpbmUgbXVzdCBiZSBpbiB0aGUgZnV0dXJlCiAgICAvLyBhc3NlcnQgZGVhZGxpbmVfcGFyYW0gPiBHbG9iYWwubGF0ZXN0X3RpbWVzdGFtcCwgIkRlYWRsaW5lIG11c3QgYmUgaW4gdGhlIGZ1dHVyZSIKICAgIGZyYW1lX2RpZyAtMgogICAgZ2xvYmFsIExhdGVzdFRpbWVzdGFtcAogICAgPgogICAgYXNzZXJ0IC8vIERlYWRsaW5lIG11c3QgYmUgaW4gdGhlIGZ1dHVyZQogICAgcmV0c3ViCg==",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBhbGdvcHkuYXJjNC5BUkM0Q29udHJhY3QuY2xlYXJfc3RhdGVfcHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMSAvLyAxCiAgICByZXR1cm4K"
+    },
+    "byteCode": {
+        "approval": "CjEbQQApgAT+GalnNhoAjgEAA4EAQzEZFEQxGEQ2GgEXNhoCFzYaAxeIAA+BAUMxGUD/3zEYFESBAUOKAwCL/USL/0SL/jIHDUSJ",
+        "clear": "CoEBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 4,
+            "minor": 7,
+            "patch": 0
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

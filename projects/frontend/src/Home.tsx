@@ -24,7 +24,7 @@ onClick={toggleWalletModal}
 {activeAddress ? 'Wallet Connected' : 'Connect Wallet'}
 </button>
 </div>
-
+</div>
 )
 }
 

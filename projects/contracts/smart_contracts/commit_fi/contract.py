@@ -6,6 +6,7 @@ class CommitFi(ARC4Contract):
     """
     CommitFi Smart Contract - Challenge commitment platform
     Issue #1: Global and Local State Schema Implementation
+    Issue #3: Create challenge logic implementation
     """
 
     # ================================
@@ -45,3 +46,36 @@ class CommitFi(ARC4Contract):
     # bits 8-63: reserved for future use
     participant_data: LocalState[UInt64]
 
+    # ================================
+    # EXTERNAL METHODS
+    # ================================
+
+    @abimethod
+    def create_challenge(
+        self,
+        stake_amount_param: UInt64,
+        deadline_param: UInt64,
+        max_participants_param: UInt64
+    ) -> None:
+        """
+        Initialize a new commitment challenge
+        Issue #3: Create challenge logic implementation
+        """
+        
+        # Validation: stake amount must be greater than 0
+        assert stake_amount_param > UInt64(0), "Stake amount must be > 0"
+        
+        # Validation: max participants must be greater than 0
+        assert max_participants_param > UInt64(0), "Max participants must be > 0"
+        
+        # Validation: deadline must be in the future
+        assert deadline_param > Global.latest_timestamp, "Deadline must be in the future"
+        
+        # TODO: Initialize global state values - syntax needs to be resolved
+        # self.creator = Txn.sender
+        # self.stake_amount = stake_amount_param
+        # self.deadline = deadline_param
+        # self.max_participants = max_participants_param
+        # self.current_participants = UInt64(0)
+        # self.total_pooled_stake = UInt64(0)
+        # self.challenge_status = UInt64(0)

@@ -190,22 +190,11 @@ algokit localnet start
 - **Shruti Bhosale**: Frontend Development, UI/UX Design
 - **Sakshi Choudhari**: Product Strategy, Behavioral Economics Research
 
-
-
-This project demonstrates advanced Algorand capabilities through:
-
-1. **Atomic Group Transactions** for trustless multi-party settlements
-2. **Optimized State Management** with bit-packed schemas
-3. **Real-time Indexer Integration** for live challenge tracking
-4. **Behavioral Economics** applied to DeFi mechanisms
-5. **Production-Ready Architecture** with comprehensive testing
-
-Commit-Fi represents the next evolution of DeFi: from pure financial speculation to real-world behavioral change through blockchain accountability.
-
 ---
 
 **Built for Hackspiration '26 on Algorand**
 *Transforming procrastination into productivity, one stake at a time.*
+
 ## Application Preview
 
 ![Commit-Fi Landing Page](assets/landing-page.jpeg)

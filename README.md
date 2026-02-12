@@ -187,9 +187,8 @@ algokit localnet start
 ## Team Contributions
 
 - **Shweta Gore**: Lead Developer, Smart Contract Architecture
-- **Frontend Team**: UI/UX Design, React Implementation  
-- **Smart Contract Team**: Protocol Design, Security Audits
-- **Product Strategy**: Behavioral Economics, Market Research
+- **Shruti Bhosale**: Frontend Development, UI/UX Design
+- **Sakshi Choudhari**: Product Strategy, Behavioral Economics Research
 
 
 

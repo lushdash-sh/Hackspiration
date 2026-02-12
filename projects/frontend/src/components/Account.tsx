@@ -16,18 +16,20 @@ const Account = () => {
   }
 
   return (
-    <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-full border border-gray-600">
-      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-      <span className="font-mono text-sm text-white" title={activeAddress}>
-        {address}
-      </span>
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 bg-cyber-black/50 px-4 py-2 rounded-lg border border-neon-green/20">
+        <span className="w-2 h-2 rounded-full bg-neon-green animate-pulse"></span>
+        <span className="font-mono text-sm text-neon-green" title={activeAddress}>
+          {address}
+        </span>
+      </div>
       <a
-        className="text-xs text-blue-400 hover:text-blue-300 ml-2"
+        className="text-xs text-neon-blue hover:text-neon-green transition-colors duration-300 font-mono"
         href={`https://lora.algokit.io/testnet/account/${activeAddress}`}
         target="_blank"
         rel="noopener noreferrer"
       >
-        View
+        [VIEW]
       </a>
     </div>
   )

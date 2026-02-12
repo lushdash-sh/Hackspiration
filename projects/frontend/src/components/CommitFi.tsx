@@ -6,6 +6,8 @@ import ConnectWallet from './ConnectWallet'
 import Staking from './Staking'
 import StudyCircle from './StudyCircle'
 import FutureSelfVault from './FutureSelfVault'
+import Dashboard from './Dashboard'
+import Vault from './Vault'
 import { CommitFiClient } from '../contracts/CommitFiClient'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 
@@ -14,7 +16,7 @@ import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClien
 // --------------------------------------------------------
 const APP_ID = 755419650 // <--- YOUR REAL APP ID IS NOW SET!
 
-type PageType = 'home' | 'staking' | 'study-circle' | 'vault'
+type PageType = 'home' | 'staking' | 'study-circle' | 'vault' | 'dashboard' | 'my-vault'
 
 const CommitFi = () => {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
@@ -29,41 +31,29 @@ const CommitFi = () => {
   // REAL BLOCKCHAIN INTERACTION
 const handleJoinChallenge = async (stakeAmount: number) => {
     if (!activeAddress) {
-      toggleWalletModal()
+      alert('Please connect your wallet first')
       return
     }
 
     try {
-      // 1. Setup the Algorand Wrapper
       const algodConfig = getAlgodConfigFromViteEnvironment()
-      const algorand = algokit.AlgorandClient.fromConfig({
-        algodConfig,
-      })
+      const algorand = algokit.AlgorandClient.fromConfig({ algodConfig })
       algorand.setDefaultSigner(transactionSigner)
 
-      // 2. Initialize the Contract Client
       const client = new CommitFiClient({
         algorand,
-        appId: BigInt(APP_ID), // <--- FIXED: Converted number to BigInt
+        appId: BigInt(APP_ID),
         defaultSender: activeAddress,
       })
 
-      const stakeInMicroAlgo = stakeAmount * 1_000_000
-      
-      alert(`Please check your Pera Wallet to sign the transaction...`)
-
-      // 3. Create the Payment Transaction
-      const paymentTxn = await algorand.createTransaction.payment({
+      const paymentTxn = await client.algorand.createTransaction.payment({
         sender: activeAddress,
         receiver: client.appAddress,
-        amount: algokit.microAlgos(stakeInMicroAlgo)
+        amount: algokit.microAlgos(stakeAmount * 1_000_000),
       })
 
-      // 4. Call the Smart Contract
       await client.send.optIn.joinPool({
-        args: {
-          payment: paymentTxn 
-        },
+        args: { payment: paymentTxn },
         extraFee: algokit.microAlgos(2000)
       })
 
@@ -77,18 +67,17 @@ setIsJoined(true)
   }
 
   const renderCurrentPage = () => {
-    const commonProps = {
-      activeAddress,
-      appId: BigInt(APP_ID),
-      onJoin: handleJoinChallenge, // Reusing your existing join logic
-      isJoined: isJoined}
     switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />
       case 'staking':
         return <Staking />
       case 'study-circle':
         return <StudyCircle />
       case 'vault':
-        return <FutureSelfVault />
+        return <Vault />
+      case 'my-vault':
+        return <Vault />
       default:
         return (
           <section className="relative z-10 flex-grow flex flex-col items-center justify-center px-6 py-20">
@@ -128,19 +117,19 @@ setIsJoined(true)
             {/* Challenge Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
               <ChallengeCard 
-                stakeAmount={10} 
+                stakeAmount={5} 
                 deadline={Math.floor(Date.now() / 1000) + 86400} 
-                onJoin={() => handleJoinChallenge(10)} 
+                onJoin={() => handleJoinChallenge(5)} 
               />
               <ChallengeCard 
-                stakeAmount={50} 
+                stakeAmount={5} 
                 deadline={Math.floor(Date.now() / 1000) - 100} 
                 onJoin={() => alert('This one is expired!')}
               />
               <ChallengeCard 
-                stakeAmount={25} 
+                stakeAmount={5} 
                 deadline={Math.floor(Date.now() / 1000) + 172800} 
-                onJoin={() => handleJoinChallenge(25)} 
+                onJoin={() => handleJoinChallenge(5)} 
               />
             </div>
           </section>
@@ -169,9 +158,9 @@ setIsJoined(true)
         <nav className="hidden md:flex items-center gap-8">
           <button 
             className={`transition-colors duration-300 font-mono text-sm ${
-              currentPage === 'home' ? 'text-neon-green' : 'text-gray-400 hover:text-neon-green'
+              currentPage === 'dashboard' ? 'text-neon-green' : 'text-gray-400 hover:text-neon-green'
             }`}
-            onClick={() => setCurrentPage('home')}
+            onClick={() => setCurrentPage('dashboard')}
           >
             DASHBOARD
           </button>
@@ -193,7 +182,7 @@ setIsJoined(true)
           </button>
           <button 
             className={`transition-colors duration-300 font-mono text-sm ${
-              currentPage === 'vault' ? 'text-neon-green' : 'text-gray-400 hover:text-neon-green'
+              currentPage === 'vault' || currentPage === 'my-vault' ? 'text-neon-green' : 'text-gray-400 hover:text-neon-green'
             }`}
             onClick={() => setCurrentPage('vault')}
           >

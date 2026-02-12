@@ -1,8 +1,48 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useCommitFiWorking } from '../hooks/useCommitFiWorking'
 
 const Staking = () => {
-  const [stakeAmount, setStakeAmount] = useState<string>('10')
+  const [stakeAmount, setStakeAmount] = useState<string>('5')
   const [duration, setDuration] = useState<string>('7')
+  const [maxParticipants, setMaxParticipants] = useState<string>('50')
+  const [userStakes, setUserStakes] = useState<any[]>([])
+  
+  const { createChallenge, loading, error, getUserStakes, STAKE_UPDATE_EVENT } = useCommitFiWorking()
+
+  const loadStakes = async () => {
+    const stakes = await getUserStakes()
+    setUserStakes(stakes)
+  }
+
+  useEffect(() => {
+    loadStakes()
+  }, [getUserStakes])
+
+  // Listen for stake updates
+  useEffect(() => {
+    const handleStakeUpdate = () => {
+      console.log('Staking received stake update event')
+      loadStakes()
+    }
+
+    window.addEventListener(STAKE_UPDATE_EVENT, handleStakeUpdate)
+    return () => window.removeEventListener(STAKE_UPDATE_EVENT, handleStakeUpdate)
+  }, [STAKE_UPDATE_EVENT, loadStakes])
+
+  const handleCreateStake = async () => {
+    const deadline = Math.floor(Date.now() / 1000) + (parseInt(duration) * 24 * 60 * 60)
+    
+    await createChallenge(
+      parseFloat(stakeAmount),
+      deadline,
+      parseInt(maxParticipants)
+    )
+    
+    // Clear form after successful creation
+    setStakeAmount('5')
+    setDuration('7')
+    setMaxParticipants('50')
+  }
 
   return (
     <div className="min-h-screen bg-cyber-black text-white relative overflow-hidden">
@@ -75,8 +115,16 @@ const Staking = () => {
               </div>
 
               {/* Action Button */}
-              <button className="w-full py-4 bg-gradient-to-r from-neon-green to-neon-blue text-cyber-black font-bold rounded-lg font-mono hover:shadow-lg hover:shadow-neon-green/50 transition-all duration-300 transform hover:scale-105">
-                CREATE STAKE
+              <button 
+                onClick={handleCreateStake}
+                disabled={loading}
+                className={`w-full py-4 font-bold rounded-lg font-mono transition-all duration-300 transform hover:scale-105 ${
+                  loading 
+                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-neon-green to-neon-blue text-cyber-black hover:shadow-lg hover:shadow-neon-green/50'
+                }`}
+              >
+                {loading ? 'CREATING CHALLENGE...' : 'CREATE STAKE'}
               </button>
             </div>
           </div>
@@ -86,29 +134,47 @@ const Staking = () => {
             {/* Total Staked */}
             <div className="bg-cyber-dark/90 backdrop-blur-sm border border-neon-blue/20 rounded-lg p-6">
               <h3 className="text-lg font-cyber font-bold text-neon-blue mb-4">TOTAL STAKED</h3>
-              <div className="text-3xl font-bold text-white font-mono mb-2">45,234.67</div>
-              <div className="text-sm text-gray-400 font-mono">ALGO across all vaults</div>
-              <div className="mt-4 text-xs text-neon-green font-mono">+12.5% this month</div>
+              <div className="text-3xl font-bold text-white font-mono mb-2">
+                {userStakes.reduce((sum, stake) => sum + stake.stakeAmount, 0).toFixed(2)}
+              </div>
+              <div className="text-sm text-gray-400 font-mono">ALGO across all your vaults</div>
+              <div className="mt-4 text-xs text-neon-green font-mono">
+                {userStakes.length} active challenge{userStakes.length !== 1 ? 's' : ''}
+              </div>
             </div>
 
             {/* Your Stakes */}
             <div className="bg-cyber-dark/90 backdrop-blur-sm border border-neon-purple/20 rounded-lg p-6">
               <h3 className="text-lg font-cyber font-bold text-neon-purple mb-4">YOUR ACTIVE STAKES</h3>
               <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-cyber-black/50 rounded-lg p-3 border border-neon-purple/10">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <div className="text-white font-mono font-semibold">Stake #{1000 + i}</div>
-                        <div className="text-xs text-gray-400 font-mono">Ends in {7 * i} days</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-neon-purple font-mono font-bold">{10 * i} ALGO</div>
-                        <div className="text-xs text-gray-400 font-mono">+{i * 0.5} ALGO</div>
-                      </div>
+                {userStakes.filter(stake => stake.status === 'joined').length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 font-mono">
+                      <div className="text-2xl mb-2">🎯</div>
+                      <div className="text-sm">No active stakes yet</div>
+                      <div className="text-xs mt-1">Create your first stake above!</div>
                     </div>
                   </div>
-                ))}
+                ) : (
+                  userStakes.filter(stake => stake.status === 'joined').map((stake, index) => (
+                    <div key={stake.appId.toString()} className="bg-cyber-black/50 rounded-lg p-3 border border-neon-purple/10">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-white font-mono font-semibold">
+                            {stake.challengeType === 'circle' ? `👥 ${stake.circleName}` : '🎯 Individual Challenge'}
+                          </div>
+                          <div className="text-xs text-gray-400 font-mono">
+                            Ends in {Math.max(0, Math.floor((stake.deadline * 1000 - Date.now()) / (1000 * 60 * 60 * 24)))} days
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-neon-purple font-mono font-bold">{stake.stakeAmount} ALGO</div>
+                          <div className="text-xs text-gray-400 font-mono">App ID: {stake.appId.toString().slice(-6)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

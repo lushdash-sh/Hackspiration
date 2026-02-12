@@ -77,3 +77,48 @@ class CommitFi(ARC4Contract):
         # 6. Update Local State
         # Mark user as 'Joined' (1)
         self.participant_data[Txn.sender] = UInt64(1)
+
+        # ================================
+    # ISSUE #5: Verify Work (Creator Only)
+    # ================================
+    @abimethod
+    def verify_participant(self, participant: Account, is_valid: bool) -> None:
+        """
+        The Creator marks a participant as 'Verified' (Winner) or 'Failed' (Loser).
+        """
+        # 1. Only the creator can verify
+        assert Txn.sender == self.creator.value, "Only creator can verify"
+        
+        # 2. Update Local State for the participant
+        # We use a bitmask or simple integer. Here we set it to 2 for 'Verified'.
+        # 0 = Nothing, 1 = Joined, 2 = Verified
+        if is_valid:
+            self.participant_data[participant] = UInt64(2)
+        else:
+            # Reset them to 0 (or keep at 1 to show they failed)
+            self.participant_data[participant] = UInt64(0)
+
+    # ================================
+    # ISSUE #5: Distribute Payout (Withdraw)
+    # ================================
+    @abimethod
+    def distribute_payout(self) -> None:
+        """
+        Winner calls this to claim their reward.
+        """
+        # 1. Check if user is Verified (Value == 2)
+        assert self.participant_data[Txn.sender] == UInt64(2), "You are not verified!"
+        
+        # 2. Send the stake back to the user (Inner Transaction)
+        itxn.Payment(
+            receiver=Txn.sender,
+            amount=self.stake_amount.value,
+            fee=0 # Contract covers fee
+        ).submit()
+
+        # 3. Mark as withdrawn (Set state to 3 so they can't claim twice)
+        self.participant_data[Txn.sender] = UInt64(3)
+        
+        # 4. Update Global Stats
+        self.total_pooled_stake.value -= self.stake_amount.value
+        self.current_participants.value -= 1

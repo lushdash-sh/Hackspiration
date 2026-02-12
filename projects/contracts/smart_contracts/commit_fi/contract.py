@@ -1,81 +1,79 @@
 from algopy import *
 from algopy.arc4 import abimethod
 
-
 class CommitFi(ARC4Contract):
     """
     CommitFi Smart Contract - Challenge commitment platform
-    Issue #1: Global and Local State Schema Implementation
-    Issue #3: Create challenge logic implementation
     """
 
-    # ================================
-    # GLOBAL STATE SCHEMA
-    # ================================
-    
-    # Contract creator address who initializes the challenge
-    creator: GlobalState[Account]
-    
-    # Required stake amount for each participant (in microAlgos)
-    stake_amount: GlobalState[UInt64]
-    
-    # Challenge deadline timestamp (Unix timestamp)
-    deadline: GlobalState[UInt64]
-    
-    # Maximum number of participants allowed
-    max_participants: GlobalState[UInt64]
-    
-    # Current number of participants who have joined
-    current_participants: GlobalState[UInt64]
-    
-    # Total amount of ALGOs staked by all participants
-    total_pooled_stake: GlobalState[UInt64]
-    
-    # Challenge status: 0=SETUP, 1=ACTIVE, 2=COMPLETED, 3=CANCELLED
-    challenge_status: GlobalState[UInt64]
+    def __init__(self) -> None:
+        # ================================
+        # GLOBAL STATE SCHEMA
+        # ================================
+        self.creator = GlobalState(Account)
+        self.stake_amount = GlobalState(UInt64)
+        self.deadline = GlobalState(UInt64)
+        self.max_participants = GlobalState(UInt64)
+        self.current_participants = GlobalState(UInt64)
+        self.total_pooled_stake = GlobalState(UInt64)
+        self.challenge_status = GlobalState(UInt64) # 0=SETUP, 1=ACTIVE
+
+        # ================================
+        # LOCAL STATE SCHEMA
+        # ================================
+        # 1 = Joined
+        self.participant_data = LocalState(UInt64)
 
     # ================================
-    # LOCAL STATE SCHEMA
+    # ISSUE #3: Create Challenge
     # ================================
-    
-    # Packed UInt64 storing participant-specific data:
-    # bit 0: has_joined (1 if participant has joined challenge)
-    # bit 1: has_submitted_proof (1 if proof submitted)
-    # bit 2: is_verified (1 if proof verified)
-    # bits 3-7: reputation_score (0-31, 5 bits)
-    # bits 8-63: reserved for future use
-    participant_data: LocalState[UInt64]
-
-    # ================================
-    # EXTERNAL METHODS
-    # ================================
-
-    @abimethod
+    @abimethod(allow_actions=["NoOp"], create="require")
     def create_challenge(
         self,
         stake_amount_param: UInt64,
         deadline_param: UInt64,
         max_participants_param: UInt64
     ) -> None:
-        """
-        Initialize a new commitment challenge
-        Issue #3: Create challenge logic implementation
-        """
         
-        # Validation: stake amount must be greater than 0
+        # Validation
         assert stake_amount_param > UInt64(0), "Stake amount must be > 0"
-        
-        # Validation: max participants must be greater than 0
         assert max_participants_param > UInt64(0), "Max participants must be > 0"
-        
-        # Validation: deadline must be in the future
         assert deadline_param > Global.latest_timestamp, "Deadline must be in the future"
         
-        # Initialize global state values using direct assignment
-        self.creator = Txn.sender
-        self.stake_amount = stake_amount_param
-        self.deadline = deadline_param
-        self.max_participants = max_participants_param
-        self.current_participants = UInt64(0)
-        self.total_pooled_stake = UInt64(0)
-        self.challenge_status = UInt64(0)
+        # Initialize Global State (Using .value)
+        self.creator.value = Txn.sender
+        self.stake_amount.value = stake_amount_param
+        self.deadline.value = deadline_param
+        self.max_participants.value = max_participants_param
+        self.current_participants.value = UInt64(0)
+        self.total_pooled_stake.value = UInt64(0)
+        self.challenge_status.value = UInt64(1) # Set to ACTIVE immediately
+
+    # ================================
+    # ISSUE #4: Join Pool
+    # ================================
+    @abimethod(allow_actions=["OptIn"])
+    def join_pool(self, payment: gtxn.PaymentTransaction) -> None:
+        """
+        User opts in and sends stake to join.
+        """
+        # 1. Verify the payment to the contract
+        assert payment.receiver == Global.current_application_address, "Payment must be to contract"
+        assert payment.amount == self.stake_amount.value, "Incorrect stake amount"
+        
+        # 2. Verify Challenge Status
+        assert self.challenge_status.value == UInt64(1), "Challenge is not active"
+        
+        # 3. Verify Deadline
+        assert Global.latest_timestamp < self.deadline.value, "Challenge has ended"
+        
+        # 4. Verify Capacity
+        assert self.current_participants.value < self.max_participants.value, "Challenge is full"
+        
+        # 5. Update Global State (Using .value)
+        self.current_participants.value += 1
+        self.total_pooled_stake.value += payment.amount
+        
+        # 6. Update Local State
+        # Mark user as 'Joined' (1)
+        self.participant_data[Txn.sender] = UInt64(1)

@@ -1,0 +1,1165 @@
+{
+  "version": 3,
+  "sources": [
+    "../../commit_fi/contract.py"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAGA;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;;AAmDK;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAnDL;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAmDK;;;AAAA;;AAzBA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AA1BL;;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AA0BK;;;AAAA;;AAAL;;;AASQ;;AAAA;AACA;;AAAA;AACO;;AAAiB;;AAAjB;AAAP;AAGA;;;;;;;;;AAAqB;;AAArB;AACA;AAAA;;AAAA;AACA;AAAA;;AAAA;AACA;;AAAA;;AAAA;AACA;AAAkC;AAAlC;AACA;AAAgC;AAAhC;AACA;;AAA8B;AAA9B;;AAKR;;;AAMe;;AAAA;;AAAoB;;AAApB;AAAP;AACO;;AAAA;;AAAkB;AAAA;AAAA;AAAA;AAAlB;;AAAA;AAAP;AAGO;AAAA;;AAAA;AAAA;AAA+B;AAA/B;AAAP;AAGO;;AAA0B;AAAA;AAAA;AAAA;AAA1B;AAAP;AAGO;AAAA;AAAA;AAAA;AAAkC;AAAA;;AAAA;AAAA;AAAlC;AAAP;AAGA;AAAA;AAAA;AAAA;AAAmC;AAAnC;AAAA;AAAA;AAAA;AACA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAIsB;;AAAtB;;;;;;;;;;;;;;;;;;AAAoC;AAApC;",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "smart_contracts.commit_fi.contract.CommitFi.__algopy_entrypoint_with_init",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1"
+    },
+    "5": {
+      "op": "bytecblock \"current_participants\" \"total_pooled_stake\" \"stake_amount\" \"deadline\" \"max_participants\" \"challenge_status\""
+    },
+    "103": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#2"
+      ],
+      "stack_out": [
+        "tmp%0#2"
+      ]
+    },
+    "105": {
+      "op": "bz main_after_if_else@7",
+      "stack_out": []
+    },
+    "108": {
+      "op": "pushbytess 0xfe19a967 0x051e0d62 // method \"create_challenge(uint64,uint64,uint64)void\", method \"join_pool(pay)void\"",
+      "defined_out": [
+        "Method(create_challenge(uint64,uint64,uint64)void)",
+        "Method(join_pool(pay)void)"
+      ],
+      "stack_out": [
+        "Method(create_challenge(uint64,uint64,uint64)void)",
+        "Method(join_pool(pay)void)"
+      ]
+    },
+    "120": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create_challenge(uint64,uint64,uint64)void)",
+        "Method(join_pool(pay)void)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "Method(create_challenge(uint64,uint64,uint64)void)",
+        "Method(join_pool(pay)void)",
+        "tmp%2#0"
+      ]
+    },
+    "123": {
+      "op": "match main_create_challenge_route@5 main_join_pool_route@6",
+      "stack_out": []
+    },
+    "129": {
+      "block": "main_after_if_else@7",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "130": {
+      "op": "return",
+      "stack_out": []
+    },
+    "131": {
+      "block": "main_join_pool_route@6",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "133": {
+      "op": "intc_1 // OptIn",
+      "defined_out": [
+        "OptIn",
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0",
+        "OptIn"
+      ]
+    },
+    "134": {
+      "op": "==",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "135": {
+      "error": "OnCompletion is not OptIn",
+      "op": "assert // OnCompletion is not OptIn",
+      "stack_out": []
+    },
+    "136": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0"
+      ]
+    },
+    "138": {
+      "error": "can only call when not creating",
+      "op": "assert // can only call when not creating",
+      "stack_out": []
+    },
+    "139": {
+      "op": "txn GroupIndex",
+      "defined_out": [
+        "tmp%14#0"
+      ],
+      "stack_out": [
+        "tmp%14#0"
+      ]
+    },
+    "141": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "tmp%14#0"
+      ],
+      "stack_out": [
+        "tmp%14#0",
+        "1"
+      ]
+    },
+    "142": {
+      "op": "-",
+      "defined_out": [
+        "gtxn_idx%0#0"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0"
+      ]
+    },
+    "143": {
+      "op": "dup",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_idx%0#0 (copy)"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_idx%0#0 (copy)"
+      ]
+    },
+    "144": {
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0"
+      ]
+    },
+    "146": {
+      "op": "intc_1 // pay",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0",
+        "pay"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type%0#0",
+        "pay"
+      ]
+    },
+    "147": {
+      "op": "==",
+      "defined_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type_matches%0#0"
+      ],
+      "stack_out": [
+        "gtxn_idx%0#0",
+        "gtxn_type_matches%0#0"
+      ]
+    },
+    "148": {
+      "error": "transaction type is pay",
+      "op": "assert // transaction type is pay",
+      "stack_out": [
+        "gtxn_idx%0#0"
+      ]
+    },
+    "149": {
+      "callsub": "smart_contracts.commit_fi.contract.CommitFi.join_pool",
+      "op": "callsub join_pool",
+      "stack_out": []
+    },
+    "152": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "153": {
+      "op": "return",
+      "stack_out": []
+    },
+    "154": {
+      "block": "main_create_challenge_route@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "156": {
+      "op": "!",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "157": {
+      "error": "OnCompletion is not NoOp",
+      "op": "assert // OnCompletion is not NoOp",
+      "stack_out": []
+    },
+    "158": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "160": {
+      "op": "!",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "161": {
+      "error": "can only call when creating",
+      "op": "assert // can only call when creating",
+      "stack_out": []
+    },
+    "162": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "reinterpret_bytes[8]%0#0"
+      ],
+      "stack_out": [
+        "reinterpret_bytes[8]%0#0"
+      ]
+    },
+    "165": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "166": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "reinterpret_bytes[8]%1#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "reinterpret_bytes[8]%1#0"
+      ]
+    },
+    "169": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%7#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "tmp%8#0"
+      ]
+    },
+    "170": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "reinterpret_bytes[8]%2#0",
+        "tmp%7#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "tmp%8#0",
+        "reinterpret_bytes[8]%2#0"
+      ]
+    },
+    "173": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%7#0",
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "174": {
+      "callsub": "smart_contracts.commit_fi.contract.CommitFi.create_challenge",
+      "op": "callsub create_challenge",
+      "stack_out": []
+    },
+    "177": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "178": {
+      "op": "return",
+      "stack_out": []
+    },
+    "179": {
+      "subroutine": "smart_contracts.commit_fi.contract.CommitFi.create_challenge",
+      "params": {
+        "stake_amount_param#0": "uint64",
+        "deadline_param#0": "uint64",
+        "max_participants_param#0": "uint64"
+      },
+      "block": "create_challenge",
+      "stack_in": [],
+      "op": "proto 3 0"
+    },
+    "182": {
+      "op": "frame_dig -3",
+      "defined_out": [
+        "stake_amount_param#0 (copy)"
+      ],
+      "stack_out": [
+        "stake_amount_param#0 (copy)"
+      ]
+    },
+    "184": {
+      "error": "Stake amount must be > 0",
+      "op": "assert // Stake amount must be > 0",
+      "stack_out": []
+    },
+    "185": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "max_participants_param#0 (copy)"
+      ],
+      "stack_out": [
+        "max_participants_param#0 (copy)"
+      ]
+    },
+    "187": {
+      "error": "Max participants must be > 0",
+      "op": "assert // Max participants must be > 0",
+      "stack_out": []
+    },
+    "188": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "deadline_param#0 (copy)"
+      ],
+      "stack_out": [
+        "deadline_param#0 (copy)"
+      ]
+    },
+    "190": {
+      "op": "global LatestTimestamp",
+      "defined_out": [
+        "deadline_param#0 (copy)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "deadline_param#0 (copy)",
+        "tmp%2#0"
+      ]
+    },
+    "192": {
+      "op": ">",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "193": {
+      "error": "Deadline must be in the future",
+      "op": "assert // Deadline must be in the future",
+      "stack_out": []
+    },
+    "194": {
+      "op": "pushbytes \"creator\"",
+      "defined_out": [
+        "\"creator\""
+      ],
+      "stack_out": [
+        "\"creator\""
+      ]
+    },
+    "203": {
+      "op": "txn Sender",
+      "defined_out": [
+        "\"creator\"",
+        "new_state_value%0#0"
+      ],
+      "stack_out": [
+        "\"creator\"",
+        "new_state_value%0#0"
+      ]
+    },
+    "205": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "206": {
+      "op": "bytec_2 // \"stake_amount\"",
+      "defined_out": [
+        "\"stake_amount\""
+      ],
+      "stack_out": [
+        "\"stake_amount\""
+      ]
+    },
+    "207": {
+      "op": "frame_dig -3",
+      "stack_out": [
+        "\"stake_amount\"",
+        "stake_amount_param#0 (copy)"
+      ]
+    },
+    "209": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "210": {
+      "op": "bytec_3 // \"deadline\"",
+      "defined_out": [
+        "\"deadline\""
+      ],
+      "stack_out": [
+        "\"deadline\""
+      ]
+    },
+    "211": {
+      "op": "frame_dig -2",
+      "stack_out": [
+        "\"deadline\"",
+        "deadline_param#0 (copy)"
+      ]
+    },
+    "213": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "214": {
+      "op": "bytec 4 // \"max_participants\"",
+      "defined_out": [
+        "\"max_participants\""
+      ],
+      "stack_out": [
+        "\"max_participants\""
+      ]
+    },
+    "216": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "\"max_participants\"",
+        "max_participants_param#0 (copy)"
+      ]
+    },
+    "218": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "219": {
+      "op": "bytec_0 // \"current_participants\"",
+      "defined_out": [
+        "\"current_participants\""
+      ],
+      "stack_out": [
+        "\"current_participants\""
+      ]
+    },
+    "220": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"current_participants\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"current_participants\"",
+        "0"
+      ]
+    },
+    "221": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "222": {
+      "op": "bytec_1 // \"total_pooled_stake\"",
+      "defined_out": [
+        "\"total_pooled_stake\""
+      ],
+      "stack_out": [
+        "\"total_pooled_stake\""
+      ]
+    },
+    "223": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"total_pooled_stake\"",
+        "0"
+      ]
+    },
+    "224": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "225": {
+      "op": "bytec 5 // \"challenge_status\"",
+      "defined_out": [
+        "\"challenge_status\""
+      ],
+      "stack_out": [
+        "\"challenge_status\""
+      ]
+    },
+    "227": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "\"challenge_status\"",
+        "1"
+      ],
+      "stack_out": [
+        "\"challenge_status\"",
+        "1"
+      ]
+    },
+    "228": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "229": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "230": {
+      "subroutine": "smart_contracts.commit_fi.contract.CommitFi.join_pool",
+      "params": {
+        "payment#0": "uint64"
+      },
+      "block": "join_pool",
+      "stack_in": [],
+      "op": "proto 1 0"
+    },
+    "233": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "payment#0 (copy)"
+      ]
+    },
+    "235": {
+      "op": "gtxns Receiver",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "237": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "239": {
+      "op": "==",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "240": {
+      "error": "Payment must be to contract",
+      "op": "assert // Payment must be to contract",
+      "stack_out": []
+    },
+    "241": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "payment#0 (copy)"
+      ]
+    },
+    "243": {
+      "op": "gtxns Amount",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "245": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "246": {
+      "op": "bytec_2 // \"stake_amount\"",
+      "defined_out": [
+        "\"stake_amount\"",
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0",
+        "\"stake_amount\""
+      ]
+    },
+    "247": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "248": {
+      "error": "check self.stake_amount exists",
+      "op": "assert // check self.stake_amount exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "249": {
+      "op": "dig 1",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%3#0",
+        "tmp%3#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%0#0",
+        "tmp%3#0 (copy)"
+      ]
+    },
+    "251": {
+      "op": "==",
+      "defined_out": [
+        "tmp%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%4#0"
+      ]
+    },
+    "252": {
+      "error": "Incorrect stake amount",
+      "op": "assert // Incorrect stake amount",
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "253": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "254": {
+      "op": "bytec 5 // \"challenge_status\"",
+      "defined_out": [
+        "\"challenge_status\"",
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0",
+        "\"challenge_status\""
+      ]
+    },
+    "256": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "257": {
+      "error": "check self.challenge_status exists",
+      "op": "assert // check self.challenge_status exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "258": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%1#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%1#0",
+        "1"
+      ]
+    },
+    "259": {
+      "op": "==",
+      "defined_out": [
+        "tmp%3#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%5#0"
+      ]
+    },
+    "260": {
+      "error": "Challenge is not active",
+      "op": "assert // Challenge is not active",
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "261": {
+      "op": "global LatestTimestamp",
+      "defined_out": [
+        "tmp%3#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%6#0"
+      ]
+    },
+    "263": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%6#0",
+        "0"
+      ]
+    },
+    "264": {
+      "op": "bytec_3 // \"deadline\"",
+      "defined_out": [
+        "\"deadline\"",
+        "0",
+        "tmp%3#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%6#0",
+        "0",
+        "\"deadline\""
+      ]
+    },
+    "265": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%2#0",
+        "maybe_value%2#0",
+        "tmp%3#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%6#0",
+        "maybe_value%2#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "266": {
+      "error": "check self.deadline exists",
+      "op": "assert // check self.deadline exists",
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%6#0",
+        "maybe_value%2#0"
+      ]
+    },
+    "267": {
+      "op": "<",
+      "defined_out": [
+        "tmp%3#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%7#0"
+      ]
+    },
+    "268": {
+      "error": "Challenge has ended",
+      "op": "assert // Challenge has ended",
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "269": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "270": {
+      "op": "bytec_0 // \"current_participants\"",
+      "defined_out": [
+        "\"current_participants\"",
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0",
+        "\"current_participants\""
+      ]
+    },
+    "271": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%3#0",
+        "maybe_value%3#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%3#0",
+        "maybe_exists%3#0"
+      ]
+    },
+    "272": {
+      "error": "check self.current_participants exists",
+      "op": "assert // check self.current_participants exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%3#0"
+      ]
+    },
+    "273": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%3#0",
+        "0"
+      ]
+    },
+    "274": {
+      "op": "bytec 4 // \"max_participants\"",
+      "defined_out": [
+        "\"max_participants\"",
+        "0",
+        "maybe_value%3#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%3#0",
+        "0",
+        "\"max_participants\""
+      ]
+    },
+    "276": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%4#0",
+        "maybe_value%3#0",
+        "maybe_value%4#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%3#0",
+        "maybe_value%4#0",
+        "maybe_exists%4#0"
+      ]
+    },
+    "277": {
+      "error": "check self.max_participants exists",
+      "op": "assert // check self.max_participants exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%3#0",
+        "maybe_value%4#0"
+      ]
+    },
+    "278": {
+      "op": "<",
+      "defined_out": [
+        "tmp%3#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%8#0"
+      ]
+    },
+    "279": {
+      "error": "Challenge is full",
+      "op": "assert // Challenge is full",
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "280": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "281": {
+      "op": "bytec_0 // \"current_participants\"",
+      "stack_out": [
+        "tmp%3#0",
+        "0",
+        "\"current_participants\""
+      ]
+    },
+    "282": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%5#0",
+        "maybe_value%5#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%5#0",
+        "maybe_exists%5#0"
+      ]
+    },
+    "283": {
+      "error": "check self.current_participants exists",
+      "op": "assert // check self.current_participants exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%5#0"
+      ]
+    },
+    "284": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%5#0",
+        "1"
+      ]
+    },
+    "285": {
+      "op": "+",
+      "defined_out": [
+        "new_state_value%0#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "new_state_value%0#0"
+      ]
+    },
+    "286": {
+      "op": "bytec_0 // \"current_participants\"",
+      "stack_out": [
+        "tmp%3#0",
+        "new_state_value%0#0",
+        "\"current_participants\""
+      ]
+    },
+    "287": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%3#0",
+        "\"current_participants\"",
+        "new_state_value%0#0"
+      ]
+    },
+    "288": {
+      "op": "app_global_put",
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "289": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "290": {
+      "op": "bytec_1 // \"total_pooled_stake\"",
+      "defined_out": [
+        "\"total_pooled_stake\"",
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0",
+        "\"total_pooled_stake\""
+      ]
+    },
+    "291": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%6#0",
+        "maybe_value%6#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%6#0",
+        "maybe_exists%6#0"
+      ]
+    },
+    "292": {
+      "error": "check self.total_pooled_stake exists",
+      "op": "assert // check self.total_pooled_stake exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%6#0"
+      ]
+    },
+    "293": {
+      "op": "+",
+      "defined_out": [
+        "new_state_value%1#0"
+      ],
+      "stack_out": [
+        "new_state_value%1#0"
+      ]
+    },
+    "294": {
+      "op": "bytec_1 // \"total_pooled_stake\"",
+      "stack_out": [
+        "new_state_value%1#0",
+        "\"total_pooled_stake\""
+      ]
+    },
+    "295": {
+      "op": "swap",
+      "stack_out": [
+        "\"total_pooled_stake\"",
+        "new_state_value%1#0"
+      ]
+    },
+    "296": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "297": {
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "299": {
+      "op": "pushbytes \"participant_data\"",
+      "defined_out": [
+        "\"participant_data\"",
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0",
+        "\"participant_data\""
+      ]
+    },
+    "317": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "tmp%10#0",
+        "\"participant_data\"",
+        "1"
+      ]
+    },
+    "318": {
+      "op": "app_local_put",
+      "stack_out": []
+    },
+    "319": {
+      "retsub": true,
+      "op": "retsub"
+    }
+  }
+}

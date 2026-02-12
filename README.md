@@ -191,17 +191,7 @@ algokit localnet start
 - **Smart Contract Team**: Protocol Design, Security Audits
 - **Product Strategy**: Behavioral Economics, Market Research
 
-## Application Preview
 
-![Commit-Fi Landing Page](assets/landing-page.png)
-
-## Architecture Diagram
-
-<p align="center">
-  <img src="assets/architecture-diagram.png" width="700">
-</p>
-
-## Hackathon Submission Note
 
 This project demonstrates advanced Algorand capabilities through:
 
@@ -217,3 +207,14 @@ Commit-Fi represents the next evolution of DeFi: from pure financial speculation
 
 **Built for Hackspiration '26 on Algorand**
 *Transforming procrastination into productivity, one stake at a time.*
+## Application Preview
+
+![Commit-Fi Landing Page](assets/landing-page.jpeg)
+
+## Architecture Diagram
+
+<p align="center">
+  <img src="assets/architecture-diagram.jpeg" width="700">
+</p>
+
+## Hackathon Submission Note

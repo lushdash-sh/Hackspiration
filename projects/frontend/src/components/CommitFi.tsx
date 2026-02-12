@@ -1,3 +1,4 @@
+import * as algokit from '@algorandfoundation/algokit-utils'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useState } from 'react'
 import ChallengeCard from './ChallengeCard'
@@ -5,27 +6,82 @@ import ConnectWallet from './ConnectWallet'
 import Staking from './Staking'
 import StudyCircle from './StudyCircle'
 import FutureSelfVault from './FutureSelfVault'
+import { CommitFiClient } from '../contracts/CommitFiClient'
+import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
+
+// --------------------------------------------------------
+// CONFIGURATION
+// --------------------------------------------------------
+const APP_ID = 755419650 // <--- YOUR REAL APP ID IS NOW SET!
 
 type PageType = 'home' | 'staking' | 'study-circle' | 'vault'
 
 const CommitFi = () => {
   const [openWalletModal, setOpenWalletModal] = useState<boolean>(false)
+  const [isJoined, setIsJoined] = useState<boolean>(false)
   const [currentPage, setCurrentPage] = useState<PageType>('home')
-  const { activeAddress } = useWallet()
+  const { activeAddress, transactionSigner } = useWallet()
 
   const toggleWalletModal = () => {
     setOpenWalletModal(!openWalletModal)
   }
 
-  const handleJoinChallenge = () => {
+  // REAL BLOCKCHAIN INTERACTION
+const handleJoinChallenge = async (stakeAmount: number) => {
     if (!activeAddress) {
-      alert('Please connect your wallet first!')
+      toggleWalletModal()
       return
     }
-    alert(`Joining Challenge with address: ${activeAddress}`)
+
+    try {
+      // 1. Setup the Algorand Wrapper
+      const algodConfig = getAlgodConfigFromViteEnvironment()
+      const algorand = algokit.AlgorandClient.fromConfig({
+        algodConfig,
+      })
+      algorand.setDefaultSigner(transactionSigner)
+
+      // 2. Initialize the Contract Client
+      const client = new CommitFiClient({
+        algorand,
+        appId: BigInt(APP_ID), // <--- FIXED: Converted number to BigInt
+        defaultSender: activeAddress,
+      })
+
+      const stakeInMicroAlgo = stakeAmount * 1_000_000
+      
+      alert(`Please check your Pera Wallet to sign the transaction...`)
+
+      // 3. Create the Payment Transaction
+      const paymentTxn = await algorand.createTransaction.payment({
+        sender: activeAddress,
+        receiver: client.appAddress,
+        amount: algokit.microAlgos(stakeInMicroAlgo)
+      })
+
+      // 4. Call the Smart Contract
+      await client.send.optIn.joinPool({
+        args: {
+          payment: paymentTxn 
+        },
+        extraFee: algokit.microAlgos(2000)
+      })
+
+      alert(`🎉 Success! You have officially staked ${stakeAmount} ALGO!`)
+setIsJoined(true)
+      
+    } catch (e) {
+      console.error(e)
+      alert(`Transaction Failed: ${(e as Error).message}`)
+    }
   }
 
   const renderCurrentPage = () => {
+    const commonProps = {
+      activeAddress,
+      appId: BigInt(APP_ID),
+      onJoin: handleJoinChallenge, // Reusing your existing join logic
+      isJoined: isJoined}
     switch (currentPage) {
       case 'staking':
         return <Staking />
@@ -74,7 +130,7 @@ const CommitFi = () => {
               <ChallengeCard 
                 stakeAmount={10} 
                 deadline={Math.floor(Date.now() / 1000) + 86400} 
-                onJoin={handleJoinChallenge}
+                onJoin={() => handleJoinChallenge(10)} 
               />
               <ChallengeCard 
                 stakeAmount={50} 
@@ -84,7 +140,7 @@ const CommitFi = () => {
               <ChallengeCard 
                 stakeAmount={25} 
                 deadline={Math.floor(Date.now() / 1000) + 172800} 
-                onJoin={handleJoinChallenge}
+                onJoin={() => handleJoinChallenge(25)} 
               />
             </div>
           </section>

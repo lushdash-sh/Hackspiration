@@ -66,7 +66,7 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({ stakeAmount, deadline, on
                 {hoursLeft}h {minutesLeft}m
               </div>
             </div>
-            <div className="w-full bg-cyber-gray rounded-full h-1 mt-2">
+            <div className="w-full bg-cyber-gray rounded-full h-1 mt-2 overflow-hidden">
               <div 
                 className="bg-neon-blue h-1 rounded-full transition-all duration-1000"
                 style={{ width: `${Math.max(0, (timeLeft / 86400) * 100)}%` }}

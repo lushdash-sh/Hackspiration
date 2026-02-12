@@ -3,9 +3,9 @@ import { SnackbarProvider } from 'notistack'
 import CommitFi from './components/CommitFi'
 import { getAlgodConfigFromViteEnvironment, getKmdConfigFromViteEnvironment } from './utils/network/getAlgoClientConfigs'
 
-// FIXED: Explicitly tell TypeScript this array holds SupportedWallet objects
 let supportedWallets: SupportedWallet[] = []
 
+// IF we are on LocalNet, only show KMD (Local Wallet)
 if (import.meta.env.VITE_ALGOD_NETWORK === 'localnet') {
   const kmdConfig = getKmdConfigFromViteEnvironment()
   supportedWallets = [
@@ -19,6 +19,7 @@ if (import.meta.env.VITE_ALGOD_NETWORK === 'localnet') {
     },
   ]
 } else {
+  // ELSE (TestNet/MainNet), show Real Wallets
   supportedWallets = [
     { id: WalletId.DEFLY },
     { id: WalletId.PERA },

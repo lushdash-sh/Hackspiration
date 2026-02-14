@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { useCommitFiWorking } from '../hooks/useCommitFiWorking'
 
+interface UserStake {
+  appId: bigint
+  stakeAmount: number
+  deadline: number
+  status: 'joined' | 'verified' | 'withdrawn'
+  proofSubmitted: boolean
+  proofUrl?: string
+  challengeType: 'individual' | 'circle'
+  circleName?: string
+}
+
 const Staking = () => {
   const [stakeAmount, setStakeAmount] = useState<string>('5')
   const [duration, setDuration] = useState<string>('7')
   const [maxParticipants, setMaxParticipants] = useState<string>('50')
-  const [userStakes, setUserStakes] = useState<any[]>([])
+  const [userStakes, setUserStakes] = useState<UserStake[]>([])
   
   const { createChallenge, loading, error, getUserStakes, STAKE_UPDATE_EVENT } = useCommitFiWorking()
 
@@ -29,7 +40,22 @@ const Staking = () => {
     return () => window.removeEventListener(STAKE_UPDATE_EVENT, handleStakeUpdate)
   }, [STAKE_UPDATE_EVENT, loadStakes])
 
+  const validateInputs = () => {
+    const amount = parseFloat(stakeAmount)
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid stake amount')
+      return false
+    }
+    if (amount < 1) {
+      alert('Minimum stake amount is 1 ALGO')
+      return false
+    }
+    return true
+  }
+
   const handleCreateStake = async () => {
+    if (!validateInputs()) return
+    
     const deadline = Math.floor(Date.now() / 1000) + (parseInt(duration) * 24 * 60 * 60)
     
     await createChallenge(
@@ -113,6 +139,13 @@ const Staking = () => {
                   <span className="text-xl font-bold text-neon-blue font-mono">12.5%</span>
                 </div>
               </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4">
+                  <div className="text-red-400 font-mono text-sm">{error}</div>
+                </div>
+              )}
 
               {/* Action Button */}
               <button 

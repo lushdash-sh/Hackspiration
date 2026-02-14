@@ -2,14 +2,32 @@ import React, { useState, useEffect } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { useCommitFiWorking } from '../hooks/useCommitFiWorking'
 
+interface UserStake {
+  appId: bigint
+  stakeAmount: number
+  deadline: number
+  status: 'joined' | 'verified' | 'withdrawn'
+  proofSubmitted: boolean
+  proofUrl?: string
+  challengeType: 'individual' | 'circle'
+  circleName?: string
+}
+
 const Vault = () => {
-  const [userStakes, setUserStakes] = useState<any[]>([])
+  const [userStakes, setUserStakes] = useState<UserStake[]>([])
   const { getUserStakes, submitProof, withdrawStake, loading, STAKE_UPDATE_EVENT } = useCommitFiWorking()
   const { activeAddress } = useWallet()
 
-  const [selectedStake, setSelectedStake] = useState<any>(null)
+  const [selectedStake, setSelectedStake] = useState<UserStake | null>(null)
   const [proofFile, setProofFile] = useState<File | null>(null)
   const [proofDescription, setProofDescription] = useState<string>('')
+
+  // Calculate vault statistics
+  const totalStaked = userStakes.reduce((sum, stake) => sum + stake.stakeAmount, 0)
+  const activeChallenges = userStakes.filter(stake => stake.status === 'joined')
+  const completedChallenges = userStakes.filter(stake => stake.status === 'withdrawn')
+  const pendingVerification = userStakes.filter(stake => stake.proofSubmitted && stake.status !== 'withdrawn')
+  const totalEarned = completedChallenges.reduce((sum, stake) => sum + stake.stakeAmount, 0) // Simplified earning calculation
 
   const loadStakes = async () => {
     const stakes = await getUserStakes()

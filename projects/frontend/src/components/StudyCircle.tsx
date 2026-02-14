@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useCommitFiWorking } from '../hooks/useCommitFiWorking'
 
+interface UserStake {
+  appId: bigint
+  stakeAmount: number
+  deadline: number
+  status: 'joined' | 'verified' | 'withdrawn'
+  proofSubmitted: boolean
+  proofUrl?: string
+  challengeType: 'individual' | 'circle'
+  circleName?: string
+}
+
 const StudyCircle = () => {
   const [selectedCircle, setSelectedCircle] = useState<number | null>(null)
   const [joinedCircles, setJoinedCircles] = useState<number[]>([])
@@ -8,9 +19,35 @@ const StudyCircle = () => {
   const [circleName, setCircleName] = useState<string>('')
   const [circleStake, setCircleStake] = useState<string>('5')
   const [maxParticipants, setMaxParticipants] = useState<string>('10')
-  const [userStakes, setUserStakes] = useState<any[]>([])
+  const [userStakes, setUserStakes] = useState<UserStake[]>([])
   
   const { createCircle, joinCircle, loading, error, getUserStakes, STAKE_UPDATE_EVENT } = useCommitFiWorking()
+
+  const validateCircleInputs = () => {
+    if (!circleName.trim()) {
+      alert('Please enter a circle name')
+      return false
+    }
+    const stake = parseFloat(circleStake)
+    if (isNaN(stake) || stake <= 0) {
+      alert('Please enter a valid stake amount')
+      return false
+    }
+    if (stake < 1) {
+      alert('Minimum stake amount is 1 ALGO')
+      return false
+    }
+    const participants = parseInt(maxParticipants)
+    if (isNaN(participants) || participants < 2) {
+      alert('Minimum 2 participants required')
+      return false
+    }
+    if (participants > 50) {
+      alert('Maximum 50 participants allowed')
+      return false
+    }
+    return true
+  }
 
   const existingCircles = [
     { id: 1, name: 'DSA Masters', members: 12, level: 'Advanced', stake: 5, nextMeeting: '2 hours' },
@@ -40,6 +77,8 @@ const StudyCircle = () => {
   }, [STAKE_UPDATE_EVENT, loadStakes])
 
   const handleCreateCircle = async () => {
+    if (!validateCircleInputs()) return
+    
     const deadline = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60)
     
     await createCircle(

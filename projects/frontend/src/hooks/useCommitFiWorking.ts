@@ -46,7 +46,15 @@ export const useCommitFiWorking = (): UseCommitFiWorkingReturn => {
       }
       const stored = localStorage.getItem(`userStakes_${activeAddress}`)
       console.log('Retrieved stakes for address:', activeAddress, stored)
-      return stored ? JSON.parse(stored) : []
+      
+      if (!stored) return []
+      
+      // Convert string appId back to BigInt
+      const parsedStakes = JSON.parse(stored)
+      return parsedStakes.map((stake: any) => ({
+        ...stake,
+        appId: BigInt(stake.appId)
+      }))
     } catch (error) {
       console.error('Error retrieving stakes:', error)
       return []
@@ -60,7 +68,14 @@ export const useCommitFiWorking = (): UseCommitFiWorkingReturn => {
         return
       }
       console.log('Storing stakes for address:', activeAddress, stakes)
-      localStorage.setItem(`userStakes_${activeAddress}`, JSON.stringify(stakes))
+      
+      // Convert BigInt to string for JSON serialization
+      const serializableStakes = stakes.map(stake => ({
+        ...stake,
+        appId: stake.appId.toString()
+      }))
+      
+      localStorage.setItem(`userStakes_${activeAddress}`, JSON.stringify(serializableStakes))
       console.log('Stakes stored successfully')
       
       // Trigger update event for all components

@@ -43,6 +43,7 @@
     "@txnlab/use-wallet-react": "^4.0.0",
     "algosdk": "^3.0.0",
     "daisyui": "^4.0.0",
+    "firebase": "^12.9.0",
     "lute-connect": "^1.6.2",
     "notistack": "^3.0.1",
     "react": "^18.2.0",

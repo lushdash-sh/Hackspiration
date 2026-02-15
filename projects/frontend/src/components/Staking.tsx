@@ -1,220 +1,218 @@
-import React, { useState, useEffect } from 'react'
-import { useCommitFiWorking } from '../hooks/useCommitFiWorking'
+import { useState } from 'react'
+import { useWallet } from '@txnlab/use-wallet-react'
+import { addDoc, collection } from 'firebase/firestore'
+import { db } from '../utils/Firebase' // REMOVED storage
+import * as algokit from '@algorandfoundation/algokit-utils'
+import { CommitFiFactory } from '../contracts/CommitFiClient'
+import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
 
-interface UserStake {
-  appId: bigint
-  stakeAmount: number
-  deadline: number
-  status: 'joined' | 'verified' | 'withdrawn'
-  proofSubmitted: boolean
-  proofUrl?: string
-  challengeType: 'individual' | 'circle'
-  circleName?: string
-}
-
-const Staking = () => {
-  const [stakeAmount, setStakeAmount] = useState<string>('5')
-  const [duration, setDuration] = useState<string>('7')
-  const [maxParticipants, setMaxParticipants] = useState<string>('50')
-  const [userStakes, setUserStakes] = useState<UserStake[]>([])
+const Staking = ({ onCreated }: { onCreated: () => void }) => {
+  const { activeAddress, transactionSigner } = useWallet()
+  const [loading, setLoading] = useState(false)
+  // REMOVED templateFile state
   
-  const { createChallenge, loading, error, getUserStakes, STAKE_UPDATE_EVENT } = useCommitFiWorking()
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    stakeAmount: 10,
+    maxMembers: 50,
+    durationValue: 7,
+    durationUnit: 'days',
+    templateUrl: '' // We will paste the link here directly
+  })
 
-  const loadStakes = async () => {
-    const stakes = await getUserStakes()
-    setUserStakes(stakes)
-  }
+  const handleCreate = async () => {
+    console.log("1. Button Clicked") 
 
-  useEffect(() => {
-    loadStakes()
-  }, [getUserStakes])
+    if (!activeAddress) return alert("Connect Wallet first")
+    if (!formData.title || !formData.templateUrl) return alert("Please fill in all fields")
 
-  // Listen for stake updates
-  useEffect(() => {
-    const handleStakeUpdate = () => {
-      console.log('Staking received stake update event')
-      loadStakes()
-    }
-
-    window.addEventListener(STAKE_UPDATE_EVENT, handleStakeUpdate)
-    return () => window.removeEventListener(STAKE_UPDATE_EVENT, handleStakeUpdate)
-  }, [STAKE_UPDATE_EVENT, loadStakes])
-
-  const validateInputs = () => {
-    const amount = parseFloat(stakeAmount)
-    if (isNaN(amount) || amount <= 0) {
-      alert('Please enter a valid stake amount')
-      return false
-    }
-    if (amount < 1) {
-      alert('Minimum stake amount is 1 ALGO')
-      return false
-    }
-    return true
-  }
-
-  const handleCreateStake = async () => {
-    if (!validateInputs()) return
+    setLoading(true)
     
-    const deadline = Math.floor(Date.now() / 1000) + (parseInt(duration) * 24 * 60 * 60)
-    
-    await createChallenge(
-      parseFloat(stakeAmount),
-      deadline,
-      parseInt(maxParticipants)
-    )
-    
-    // Clear form after successful creation
-    setStakeAmount('5')
-    setDuration('7')
-    setMaxParticipants('50')
+    try {
+      // SKIP UPLOAD STEP
+
+      // ---------------------------------------------------------
+      // STEP 1: CALCULATE DEADLINE
+      // ---------------------------------------------------------
+      let durationInSeconds = 0
+      const { durationValue, durationUnit } = formData
+      
+      if (durationUnit === 'hours') durationInSeconds = durationValue * 3600
+      else if (durationUnit === 'days') durationInSeconds = durationValue * 86400
+      else if (durationUnit === 'months') durationInSeconds = durationValue * 30 * 86400
+      
+      const deadlineTimestamp = Math.floor(Date.now() / 1000) + durationInSeconds
+      console.log("2. Deadline Calculated:", deadlineTimestamp)
+
+      // ---------------------------------------------------------
+      // STEP 2: DEPLOY NEW SMART CONTRACT
+      // ---------------------------------------------------------
+      console.log("3. Initializing Algorand Client...")
+      const algodConfig = getAlgodConfigFromViteEnvironment()
+      const algorand = algokit.AlgorandClient.fromConfig({ algodConfig })
+      algorand.setDefaultSigner(transactionSigner)
+
+      console.log("4. Initializing Factory...")
+      const factory = new CommitFiFactory({
+        algorand,
+        defaultSender: activeAddress
+      })
+
+      console.log("5. SENDING DEPLOY TRANSACTION... (Check Pera Wallet)")
+      
+      const { result, appClient } = await factory.send.create.createChallenge({
+        args: {
+          stakeAmountParam: BigInt(formData.stakeAmount * 1_000_000),
+          deadlineParam: BigInt(deadlineTimestamp),
+          maxParticipantsParam: BigInt(formData.maxMembers)
+        }
+      })
+      console.log("6. Contract Deployed! New App ID:", result.appId)
+
+      const newAppId = result.appId 
+      const newAppAddress = result.appAddress
+
+      // ---------------------------------------------------------
+      // STEP 3: FUND & JOIN CONTRACT
+      // ---------------------------------------------------------
+      console.log("7. Funding Contract (Min Balance)...")
+      await algorand.send.payment({
+        sender: activeAddress,
+        receiver: newAppAddress,
+        amount: algokit.algo(0.2)
+      })
+
+      console.log("8. Joining Pool (Leader Stake)...")
+      const paymentTxn = await algorand.createTransaction.payment({
+        sender: activeAddress,
+        receiver: newAppAddress,
+        amount: algokit.microAlgos(formData.stakeAmount * 1_000_000)
+      })
+
+      await appClient.send.optIn.joinPool({
+        args: { payment: paymentTxn },
+        extraFee: algokit.microAlgos(2000)
+      })
+      console.log("9. Leader Joined Successfully")
+
+      // ---------------------------------------------------------
+      // STEP 4: SAVE TO FIREBASE
+      // ---------------------------------------------------------
+      console.log("10. Saving to Firestore...")
+      await addDoc(collection(db, "challenges"), {
+        title: formData.title,
+        description: formData.description,
+        stakeAmount: formData.stakeAmount,
+        maxMembers: formData.maxMembers,
+        templateUrl: formData.templateUrl, // Saving the text link
+        creator: activeAddress,
+        createdAt: Date.now(),
+        deadline: deadlineTimestamp,
+        appId: newAppId.toString()
+      })
+
+      console.log("11. SUCCESS!")
+      alert("Challenge Created Successfully!")
+      onCreated()
+
+    } catch (e) {
+      console.error("CRITICAL ERROR:", e)
+      alert(`Creation Failed: ${(e as Error).message}`)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-cyber-black text-white relative overflow-hidden">
-      {/* Background Grid Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyber-black via-cyber-dark to-cyber-black">
-        <div className="absolute inset-0 opacity-20">
-          <div className="h-full w-full bg-[linear-gradient(0deg,transparent_24%,rgba(0,255,136,0.05)_25%,rgba(0,255,136,0.05)_26%,transparent_27%,transparent_74%,rgba(0,255,136,0.05)_75%,rgba(0,255,136,0.05)_76%,transparent_77%,transparent)] bg-[size:50px_50px]"></div>
-        </div>
-      </div>
-
-      <div className="relative z-10 container mx-auto px-6 py-20">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-7xl font-cyber font-bold mb-4 bg-gradient-to-r from-neon-green via-neon-blue to-neon-purple bg-clip-text text-transparent">
-            STAKING VAULT
-          </h1>
-          <p className="text-xl text-gray-400 font-mono max-w-2xl mx-auto">
-            Lock your ALGO in smart contracts and earn rewards while building discipline
-          </p>
-        </div>
-
-        {/* Staking Interface */}
-        <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Staking Form */}
-          <div className="bg-cyber-dark/90 backdrop-blur-sm border border-neon-green/20 rounded-lg p-8">
-            <h2 className="text-2xl font-cyber font-bold text-neon-green mb-6">CREATE STAKE</h2>
-            
-            <div className="space-y-6">
-              {/* Amount Input */}
-              <div>
-                <label className="block text-sm font-mono text-gray-400 mb-2">AMOUNT (ALGO)</label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={stakeAmount}
-                    onChange={(e) => setStakeAmount(e.target.value)}
-                    className="w-full bg-cyber-black/50 border border-neon-green/20 rounded-lg px-4 py-3 text-white font-mono focus:outline-none focus:border-neon-green focus:shadow-lg focus:shadow-neon-green/20"
-                    placeholder="Enter amount"
-                  />
-                  <div className="absolute right-3 top-3 text-neon-green font-mono text-sm">₳</div>
-                </div>
-              </div>
-
-              {/* Duration Selection */}
-              <div>
-                <label className="block text-sm font-mono text-gray-400 mb-2">DURATION (DAYS)</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {['7', '14', '30'].map((days) => (
-                    <button
-                      key={days}
-                      onClick={() => setDuration(days)}
-                      className={`py-3 rounded-lg font-mono font-bold transition-all duration-300 ${
-                        duration === days
-                          ? 'bg-neon-green text-cyber-black'
-                          : 'bg-cyber-black/50 border border-neon-green/20 text-gray-400 hover:border-neon-green/50'
-                      }`}
-                    >
-                      {days}D
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* APY Display */}
-              <div className="bg-cyber-black/50 rounded-lg p-4 border border-neon-blue/10">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-mono text-gray-400">ESTIMATED APY</span>
-                  <span className="text-xl font-bold text-neon-blue font-mono">12.5%</span>
-                </div>
-              </div>
-
-              {/* Error Display */}
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4">
-                  <div className="text-red-400 font-mono text-sm">{error}</div>
-                </div>
-              )}
-
-              {/* Action Button */}
-              <button 
-                onClick={handleCreateStake}
-                disabled={loading}
-                className={`w-full py-4 font-bold rounded-lg font-mono transition-all duration-300 transform hover:scale-105 ${
-                  loading 
-                    ? 'bg-gray-500 text-gray-300 cursor-not-allowed' 
-                    : 'bg-gradient-to-r from-neon-green to-neon-blue text-cyber-black hover:shadow-lg hover:shadow-neon-green/50'
-                }`}
-              >
-                {loading ? 'CREATING CHALLENGE...' : 'CREATE STAKE'}
-              </button>
-            </div>
-          </div>
-
-          {/* Stats & Info */}
-          <div className="space-y-6">
-            {/* Total Staked */}
-            <div className="bg-cyber-dark/90 backdrop-blur-sm border border-neon-blue/20 rounded-lg p-6">
-              <h3 className="text-lg font-cyber font-bold text-neon-blue mb-4">TOTAL STAKED</h3>
-              <div className="text-3xl font-bold text-white font-mono mb-2">
-                {userStakes.reduce((sum, stake) => sum + stake.stakeAmount, 0).toFixed(2)}
-              </div>
-              <div className="text-sm text-gray-400 font-mono">ALGO across all your vaults</div>
-              <div className="mt-4 text-xs text-neon-green font-mono">
-                {userStakes.length} active challenge{userStakes.length !== 1 ? 's' : ''}
-              </div>
+    <div className="max-w-3xl mx-auto py-12 px-6">
+       <div className="bg-cyber-dark/30 border border-neon-green/20 p-8 rounded-xl backdrop-blur-md">
+         <h2 className="text-4xl font-cyber text-neon-green mb-8 tracking-wide text-center">CREATE STAKE</h2>
+         
+         <div className="space-y-6">
+            <div>
+               <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Challenge Title</label>
+               <input 
+                 className="w-full bg-black/40 border border-gray-700 rounded p-4 text-white focus:border-neon-green outline-none font-mono"
+                 placeholder="e.g. DSA Sprint"
+                 onChange={(e) => setFormData({...formData, title: e.target.value})}
+               />
             </div>
 
-            {/* Your Stakes */}
-            <div className="bg-cyber-dark/90 backdrop-blur-sm border border-neon-purple/20 rounded-lg p-6">
-              <h3 className="text-lg font-cyber font-bold text-neon-purple mb-4">YOUR ACTIVE STAKES</h3>
-              <div className="space-y-3">
-                {userStakes.filter(stake => stake.status === 'joined').length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 font-mono">
-                      <div className="text-2xl mb-2">🎯</div>
-                      <div className="text-sm">No active stakes yet</div>
-                      <div className="text-xs mt-1">Create your first stake above!</div>
-                    </div>
-                  </div>
-                ) : (
-                  userStakes.filter(stake => stake.status === 'joined').map((stake, index) => (
-                    <div key={stake.appId.toString()} className="bg-cyber-black/50 rounded-lg p-3 border border-neon-purple/10">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <div className="text-white font-mono font-semibold">
-                            {stake.challengeType === 'circle' ? `👥 ${stake.circleName}` : '🎯 Individual Challenge'}
-                          </div>
-                          <div className="text-xs text-gray-400 font-mono">
-                            Ends in {Math.max(0, Math.floor((stake.deadline * 1000 - Date.now()) / (1000 * 60 * 60 * 24)))} days
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-neon-purple font-mono font-bold">{stake.stakeAmount} ALGO</div>
-                          <div className="text-xs text-gray-400 font-mono">App ID: {stake.appId.toString().slice(-6)}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+            <div>
+               <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Description</label>
+               <textarea 
+                 className="w-full bg-black/40 border border-gray-700 rounded p-4 text-white focus:border-neon-green outline-none font-mono h-24 resize-none"
+                 placeholder="Describe the goal..."
+                 onChange={(e) => setFormData({...formData, description: e.target.value})}
+               />
             </div>
-          </div>
-        </div>
-      </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                   <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Stake (ALGO)</label>
+                   <input 
+                     type="number"
+                     className="w-full bg-black/40 border border-gray-700 rounded p-4 text-white focus:border-neon-green outline-none font-mono"
+                     value={formData.stakeAmount}
+                     onChange={(e) => setFormData({...formData, stakeAmount: Number(e.target.value)})}
+                   />
+                </div>
+                <div>
+                   <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Duration</label>
+                   <div className="flex">
+                      <input 
+                        type="number"
+                        className="w-2/3 bg-black/40 border border-gray-700 rounded-l p-4 text-white focus:border-neon-green outline-none font-mono"
+                        value={formData.durationValue}
+                        onChange={(e) => setFormData({...formData, durationValue: Number(e.target.value)})}
+                      />
+                      <select 
+                        className="w-1/3 bg-gray-900 border border-l-0 border-gray-700 rounded-r text-white focus:border-neon-green outline-none font-mono text-sm px-2 cursor-pointer"
+                        value={formData.durationUnit}
+                        onChange={(e) => setFormData({...formData, durationUnit: e.target.value})}
+                      >
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
+                        <option value="months">Months</option>
+                      </select>
+                   </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                   <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Max Participants</label>
+                   <input 
+                     type="number"
+                     className="w-full bg-black/40 border border-gray-700 rounded p-4 text-white focus:border-neon-green outline-none font-mono"
+                     value={formData.maxMembers}
+                     onChange={(e) => setFormData({...formData, maxMembers: Number(e.target.value)})}
+                   />
+                </div>
+                
+                {/* REVERTED TO TEXT INPUT */}
+                <div>
+                   <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Submission Template URL</label>
+                   <input 
+                     className="w-full bg-black/40 border border-gray-700 rounded p-4 text-white focus:border-neon-green outline-none font-mono text-sm"
+                     placeholder="https://drive.google.com/..."
+                     value={formData.templateUrl}
+                     onChange={(e) => setFormData({...formData, templateUrl: e.target.value})}
+                   />
+                </div>
+            </div>
+
+            <button 
+               onClick={handleCreate}
+               disabled={loading}
+               className="w-full py-5 mt-4 bg-gradient-to-r from-neon-green to-neon-blue text-black font-bold font-mono text-xl rounded shadow-[0_0_20px_rgba(0,255,136,0.3)] hover:shadow-[0_0_40px_rgba(0,255,136,0.6)] transition-all uppercase tracking-wider disabled:opacity-50"
+            >
+               {loading ? "DEPLOYING CONTRACT..." : "PAY STAKE & CREATE"}
+            </button>
+         </div>
+       </div>
     </div>
   )
 }
-
 export default Staking

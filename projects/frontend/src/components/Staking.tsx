@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { addDoc, collection } from 'firebase/firestore'
-import { db } from '../utils/Firebase' // REMOVED storage
+import { db } from '../utils/Firebase'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { CommitFiFactory } from '../contracts/CommitFiClient'
 import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClientConfigs'
@@ -9,16 +9,15 @@ import { getAlgodConfigFromViteEnvironment } from '../utils/network/getAlgoClien
 const Staking = ({ onCreated }: { onCreated: () => void }) => {
   const { activeAddress, transactionSigner } = useWallet()
   const [loading, setLoading] = useState(false)
-  // REMOVED templateFile state
   
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     stakeAmount: 10,
     maxMembers: 50,
-    durationValue: 7,
-    durationUnit: 'days',
-    templateUrl: '' // We will paste the link here directly
+    durationValue: 7,       // Default set to 7
+    durationUnit: 'days',   // Default set to Days
+    templateUrl: ''
   })
 
   const handleCreate = async () => {
@@ -30,14 +29,13 @@ const Staking = ({ onCreated }: { onCreated: () => void }) => {
     setLoading(true)
     
     try {
-      // SKIP UPLOAD STEP
-
       // ---------------------------------------------------------
       // STEP 1: CALCULATE DEADLINE
       // ---------------------------------------------------------
       let durationInSeconds = 0
       const { durationValue, durationUnit } = formData
       
+      // Removed 'minutes' logic
       if (durationUnit === 'hours') durationInSeconds = durationValue * 3600
       else if (durationUnit === 'days') durationInSeconds = durationValue * 86400
       else if (durationUnit === 'months') durationInSeconds = durationValue * 30 * 86400
@@ -105,7 +103,7 @@ const Staking = ({ onCreated }: { onCreated: () => void }) => {
         description: formData.description,
         stakeAmount: formData.stakeAmount,
         maxMembers: formData.maxMembers,
-        templateUrl: formData.templateUrl, // Saving the text link
+        templateUrl: formData.templateUrl,
         creator: activeAddress,
         createdAt: Date.now(),
         deadline: deadlineTimestamp,
@@ -172,6 +170,7 @@ const Staking = ({ onCreated }: { onCreated: () => void }) => {
                         value={formData.durationUnit}
                         onChange={(e) => setFormData({...formData, durationUnit: e.target.value})}
                       >
+                        {/* MINUTES REMOVED */}
                         <option value="hours">Hours</option>
                         <option value="days">Days</option>
                         <option value="months">Months</option>
@@ -191,7 +190,6 @@ const Staking = ({ onCreated }: { onCreated: () => void }) => {
                    />
                 </div>
                 
-                {/* REVERTED TO TEXT INPUT */}
                 <div>
                    <label className="block text-gray-400 font-mono text-xs uppercase mb-2">Submission Template URL</label>
                    <input 

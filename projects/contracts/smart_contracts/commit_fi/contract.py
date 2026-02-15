@@ -122,3 +122,45 @@ class CommitFi(ARC4Contract):
         # 4. Update Global Stats
         self.total_pooled_stake.value -= self.stake_amount.value
         self.current_participants.value -= 1
+
+        @arc4.abimethod
+        def withdraw(self) -> None:
+            # 1. Check if Deadline has passed
+            assert Global.latest_timestamp > self.deadline, "Challenge is still active"
+            
+            # 2. Check if Sender is a Verified Winner (Local State = 2)
+            # (Assuming 0=None, 1=Pending, 2=Verified)
+            is_verified, exists = op.App.localGetEx(Txn.sender, self.app.id, b"status")
+            assert exists and is_verified == UInt64(2), "You are not a verified winner"
+
+            # 3. Check if User has already claimed (Prevent double dipping)
+            # We use a trick: If they claim, we set their status to 3 (Claimed)
+            
+            # 4. Calculate The Payout
+            # Logic: Total Balance / Total Winners
+            # Note: In a real app, we track 'total_winners' in a Global Int.
+            # For this hackathon, we will use a simplified "Equal Drain" strategy:
+            # Payout = Current_Balance / Remaining_Winners_Count
+            
+            # READ GLOBAL STATE FOR WINNER COUNT (You must add this counter to verify_participant)
+            total_winners = self.total_winners
+            assert total_winners > 0, "No winners"
+            
+            # Calculate Share
+            current_balance = self.app.account.balance
+            # We reserve min balance (0.1A) so contract doesn't die
+            available_balance = current_balance - 100_000 
+            payout_amount = available_balance // total_winners
+
+            # 5. Send Payment
+            itxn.Payment(
+                receiver=Txn.sender,
+                amount=payout_amount,
+                fee=0 # The caller pays the fee
+            ).submit()
+
+            # 6. Mark as Claimed (Set Local State to 3)
+            op.App.localPut(Txn.sender, b"status", UInt64(3))
+            
+            # 7. Decrement Winner Count (So the math works for the next person)
+            self.total_winners -= 1
